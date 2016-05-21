@@ -315,6 +315,16 @@ bool remove(int place)
         }
         else
         {
+            if ((Head != NULL) && (Tail == NULL))
+            {
+                Head = NULL;
+                return true;
+            }
+            else if ((Head != NULL) && (Head -> next() == Tail) && (Tail != NULL))
+            {
+                Tail = NULL;
+                return true;
+            }
             int n = 0;
             Iterator i = this -> front();
             //uwaga prawdopodobnie wywali sie przy wywalaniu z zerowego miejsca albo place == size()
