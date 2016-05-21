@@ -1,5 +1,6 @@
 #include "aghContainer.h"
 #include "aghElement.h"
+#include "aghException.h"
 #ifndef AGHDLIST_H
 #define AGHDLIST_H
 
@@ -44,8 +45,8 @@ public:
     {
         while (Head!= NULL)
         {
-            Element<T>* b = Head;
-            Element<T>* c = Head -> next();
+            Element<T>* b = this -> front();
+            Element<T>* c = b -> next();
             delete b;
             Head = c;
         }
@@ -125,13 +126,11 @@ public:
         }
         else
         {
-            //wywal wyjatek
-            cout << "poza zakresem" << endl;
+            throw aghException(0, "Index out of range", __FILE__, __LINE__);
         }
-       // return Head -> getValue();
     }
 
-    aghDlist& operator= (aghDlist const& Source)
+    aghDlist<T>& operator= (aghDlist<T> const& Source)
     {
         if (this == &Source)
 		{
@@ -169,20 +168,16 @@ public:
 
     aghDlist<T> (const aghContainer<T> &ToCopy)
     {
-        clear();
-        int j = 0;
-        while (j < ToCopy.size())
-        {
-            append(ToCopy.at(j));
-            j++;
-        }
-        /*int rozmiar = ToCopy.size();
-        Iterator i = this -> front();
-        while (this -> size() < rozmiar)
-        {
-            append(ToCopy.at(this->size()));
-            i = i -> next();
-        }*/
+        cout << "HEj tu kons kop aghCOntainer" << endl;
+        int i = 0;
+        Head = NULL;
+        Tail = NULL;
+
+        while (i < ToCopy.size())
+       {
+           append(ToCopy.at(i));
+           i++;
+       }
     }
 
     aghDlist<T>& operator<<(aghDlist<T> const& right)
@@ -310,5 +305,150 @@ friend ostream& operator<<(ostream& os, aghDlist<T> const& right)
     os << endl;
 }
 
+bool remove(int place)
+{
+    if (place >= 0 && place <= size())
+    {
+        if (isEmpty() == true)
+        {
+            return false;
+        }
+        else
+        {
+            int n = 0;
+            Iterator i = this -> front();
+            //uwaga prawdopodobnie wywali sie przy wywalaniu z zerowego miejsca albo place == size()
+            while (n < place)
+            {
+                i = i -> next();
+                n++;
+            }
+            Element<T> *Usuwany = i;
+            Element<T> *tmpPrevious = Usuwany -> prev();
+            Element<T> *tmpNext = Usuwany -> next();
+            tmpPrevious -> setNext(tmpNext);
+            tmpNext -> setPrev(tmpPrevious);
+            delete Usuwany;
+        }
+        return true;
+    }
+    else return false;
+}
+
+bool contains(T const& _value, int _from = 0) const
+{
+    for (Iterator i = Head; i != NULL; i = i -> next())
+    {
+        if (i -> getValue() == _value)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool operator==(aghDlist<T> const& right)
+{
+   if (this -> size() != right.size())
+   {
+       return false;
+   }
+   else
+   {
+       Iterator j = right.Head;
+       for (Iterator i = this -> front(); i != NULL; i = i -> next())
+       {
+           if (i -> getValue() != j -> getValue())
+           {
+               return false;
+           }
+           j = j -> next();
+       }
+       return true;
+   }
+}
+
+bool operator!=(aghDlist<T> const& right)
+{
+   if (this -> size() != right.size())
+   {
+       return true;
+   }
+   else
+   {
+       Iterator j = right.Head;
+       for (Iterator i = this -> front(); i != NULL; i = i -> next())
+       {
+           if (i -> getValue() != j -> getValue())
+           {
+               return true;
+           }
+           j = j -> next();
+       }
+       return false;
+   }
+}
+
+aghDlist<T>& operator+=(T const& element)
+{
+    append(element);
+    return *this;
+}
+
+aghDlist<T>& operator+=(aghDlist<T> const& right)
+{
+    for (Iterator i = right.Head; i != NULL; i = i -> next())
+    {
+        append(i -> getValue());
+    }
+    return *this;
+}
+
+T& operator[](int n) const
+{
+    if ((n >= 0) && (n <= size()))
+    {
+        return at(n);
+    }
+    else
+    {
+        throw aghException(0, "Index out of range", __FILE__, __LINE__);
+    }
+}
+
+int indexOf(T const& _value, int _from) const
+{
+    int licznik = 0;
+    if(Head != NULL)
+    {
+        Iterator i = Head;
+        while (licznik < _from)
+        {
+            if (i -> next() != NULL)
+            {
+                i = i -> next();
+            }
+            licznik ++;
+        }
+        cout << "index o " << endl;
+        cout << i -> getValue() << endl;
+        if (i -> getValue() == _value)
+        {
+            return licznik;
+        }
+        for (Iterator j = i; j != NULL; j = j -> next())
+        {
+            if (j -> getValue() == _value)
+            {
+                cout << "before return " << endl;
+                cout << j -> getValue() << endl;
+                return licznik;
+            }
+            licznik++;
+        }
+        return -1;
+    }
+    return -1;
+}
 };
 #endif // AGHDLIST_H
